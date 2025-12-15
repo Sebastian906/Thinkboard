@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -26,7 +28,17 @@ func main() {
 
 	// Crear una instancia de Gin
 	app := gin.Default()
-	
+
+	// Middleware de CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000"}, // Especifica los orígenes
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},
+		AllowCredentials: true,
+		MaxAge:           12 * 3600,
+	}))
+
 	// Middleware de rate limiting
 	app.Use(middleware.RateLimitMiddleware())
 
