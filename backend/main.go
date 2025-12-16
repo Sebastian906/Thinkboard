@@ -30,7 +30,7 @@ func main() {
 		AllowOrigins: []string{
 			"http://localhost:5173",
 			"http://localhost:3000",
-			"https://thinkboard-frontend.onrender.com",
+			"https://thinkboard-frontend-68mm.onrender.com",
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
