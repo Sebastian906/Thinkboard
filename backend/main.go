@@ -5,7 +5,6 @@ import (
 	"backend/middleware"
 	"backend/routes"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -15,10 +14,7 @@ import (
 
 func main() {
 	// Cargar variables de entorno desde .env
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error cargando el archivo .env")
-	}
+	godotenv.Load()
 
 	// Obtener el puerto desde variables de entorno o usar 5001 por defecto
 	port := os.Getenv("PORT")
@@ -31,7 +27,11 @@ func main() {
 
 	// Middleware de CORS
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000"}, // Especifica los orígenes
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"http://localhost:3000",
+			"https://thinkboard-frontend.onrender.com", 
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},

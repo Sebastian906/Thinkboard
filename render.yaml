@@ -1,0 +1,38 @@
+services:
+  # Backend Service (Go)
+  - type: web
+    name: thinkboard-backend
+    env: go
+    region: oregon
+    plan: free
+    buildCommand: go build -o main .
+    startCommand: ./main
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: GIN_MODE
+        value: release
+    healthCheckPath: /api/notes
+
+  # Frontend Service (Node)
+  - type: web
+    name: thinkboard-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: thinkboard-backend
+          envVarKey: RENDER_EXTERNAL_URL
