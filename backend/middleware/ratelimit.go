@@ -11,9 +11,9 @@ import (
 )
 
 // RateLimitMiddleware aplica rate limiting a las rutas
-// Permite 10 requests por 20 segundos por defecto
+// Permite 100 requests por 60 segundos por defecto
 func RateLimitMiddleware() gin.HandlerFunc {
-	return RateLimitWithConfig(10, 20*time.Second)
+	return RateLimitWithConfig(100, 60*time.Second)
 }
 
 // RateLimitWithConfig permite personalizar el límite y la ventana de tiempo
@@ -28,7 +28,7 @@ func RateLimitWithConfig(limit int, window time.Duration) gin.HandlerFunc {
 
 		// Verificar el rate limit
 		allowed, remaining, resetTime, err := config.CheckRateLimit(ctx, identifier, limit, window)
-		
+
 		// Agregar headers informativos sobre el rate limit
 		c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", limit))
 		c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remaining))
@@ -49,7 +49,7 @@ func RateLimitWithConfig(limit int, window time.Duration) gin.HandlerFunc {
 			}
 
 			c.Header("Retry-After", fmt.Sprintf("%d", retryAfter))
-			
+
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"error":      "Too many requests",
 				"message":    "Rate limit exceeded. Please try again later.",
