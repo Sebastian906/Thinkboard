@@ -83,7 +83,7 @@ func CreateNote(c *gin.Context) {
 
 	var input models.CreateNoteInput
 
-	// Validar el JSON de entrada 
+	// Validar el JSON de entrada
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid input"})
 		return
@@ -94,6 +94,7 @@ func CreateNote(c *gin.Context) {
 		ID:        bson.NewObjectID(),
 		Title:     input.Title,
 		Content:   input.Content,
+		Tags:      input.Tags,
 		Completed: false,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -124,8 +125,9 @@ func UpdateNote(c *gin.Context) {
 	}
 
 	var input struct {
-		Title   string `json:"title"`
-		Content string `json:"content"`
+		Title   string   `json:"title"`
+		Content string   `json:"content"`
+		Tags    []string `json:"tags"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -138,13 +140,14 @@ func UpdateNote(c *gin.Context) {
 		"$set": bson.M{
 			"title":     input.Title,
 			"content":   input.Content,
+			"tags":      input.Tags,
 			"updatedAt": time.Now(),
 		},
 	}
 
 	// Opciones para devolver el documento actualizado
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	
+
 	var updatedNote models.Note
 	err = collection.FindOneAndUpdate(
 		ctx,
@@ -179,7 +182,7 @@ func DeleteNote(c *gin.Context) {
 		return
 	}
 
-	// Buscar y eliminar 
+	// Buscar y eliminar
 	var deletedNote models.Note
 	err = collection.FindOneAndDelete(ctx, bson.M{"_id": objectID}).Decode(&deletedNote)
 
