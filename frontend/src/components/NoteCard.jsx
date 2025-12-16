@@ -26,6 +26,18 @@ const NoteCard = ({ note, setNotes }) => {
             <div className='card-body'>
                 <h3 className='card-title text-base-content'>{note.title}</h3>
                 <p className='text-base-content/70 line-clamp-3'>{note.content}</p>
+                {note.tags && note.tags.length > 0 && (
+                    <div className='flex flex-wrap gap-1 my-2'>
+                        {note.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className='badge badge-sm badge-primary'>
+                                {tag}
+                            </span>
+                        ))}
+                        {note.tags.length > 3 && (
+                            <span className='badge badge-sm'>+{note.tags.length - 3}</span>
+                        )}
+                    </div>
+                )}
                 <div className='card-actions justify-between items-center mt-4'>
                     <span className='text-sm text-base-content/60'>
                         {formatDate(new Date(note.createdAt))}

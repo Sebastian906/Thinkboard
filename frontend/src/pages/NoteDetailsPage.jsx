@@ -3,12 +3,16 @@ import { Link, useNavigate, useParams } from 'react-router';
 import api from '../lib/axios';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from 'lucide-react';
+import RichTextEditor from '../components/RichTextEditor';
+import TagsInput from '../components/TagsInput';
+import FormattedText from '../components/FormattedText';
 
 export const NoteDetailsPage = () => {
 
     const [note, setNote] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const navigate = useNavigate();
 
@@ -48,9 +52,13 @@ export const NoteDetailsPage = () => {
         }
         setSaving(true);
         try {
-            await api.put(`/notes/${id}`, notes);
+            await api.put(`/notes/${id}`, {
+                title: note.title,
+                content: note.content,
+                tags: note.tags || []
+            });
             toast.success("Nota actualizada con éxito.");
-            navigate("/");
+            setIsEditing(false);
         } catch (error) {
             console.log("Error actualizando la nota:", error);
             toast.error("Error al actualizar la nota.");
@@ -76,41 +84,70 @@ export const NoteDetailsPage = () => {
                             <ArrowLeftIcon className='h-5 w-5' />
                             Volver a las Notas
                         </Link>
-                        <button onClick={handleDelete} className='btn btn-error btn-outline'>
-                            <Trash2Icon className='h-5 w-5' />
-                            Borrar Nota
-                        </button>
+                        <div className='flex gap-2'>
+                            <button 
+                                onClick={() => setIsEditing(!isEditing)} 
+                                className='btn btn-warning btn-outline'
+                            >
+                                {isEditing ? 'Cancelar' : 'Editar'}
+                            </button>
+                            <button onClick={handleDelete} className='btn btn-error btn-outline'>
+                                <Trash2Icon className='h-5 w-5' />
+                                Borrar Nota
+                            </button>
+                        </div>
                     </div>
                     <div className='card bg-base-100'>
                         <div className='card-body'>
-                            <div className='form-control mb-4'>
-                                <label className='label'>
-                                    <span className='label-text'>Título</span>
-                                </label>
-                                <input 
-                                    type="text"
-                                    placeholder='Título de Nota'
-                                    className='input input-bordered'
-                                    value={note.title}
-                                    onChange={(e) => setNote({ ...note, title: e.target.value })} 
-                                />
-                            </div>
-                            <div className='form-control mb-4'>
-                                <label className='label'>
-                                    <span className='label-text'>Contenido</span>
-                                </label>
-                                <textarea
-                                    placeholder='Contenido de Nota'
-                                    className='textarea textarea-bordered h-32'
-                                    value={note.content}
-                                    onChange={(e) => setNote({ ...note, content: e.target.value })} 
-                                />
-                            </div>
-                            <div className='card-actions justify-end'>
-                                <button className='btn btn-primary' disabled={saving} onClick={handleSave}>
-                                    {saving ? 'Guardando...' : 'Guardar Cambios'}
-                                </button>
-                            </div>
+                            {isEditing ? (
+                                <>
+                                    <div className='form-control mb-4'>
+                                        <label className='label'>
+                                            <span className='label-text'>Título</span>
+                                        </label>
+                                        <input 
+                                            type="text"
+                                            placeholder='Título de Nota'
+                                            className='input input-bordered'
+                                            value={note.title}
+                                            onChange={(e) => setNote({ ...note, title: e.target.value })} 
+                                        />
+                                    </div>
+                                    <RichTextEditor 
+                                        value={note.content}
+                                        onChange={(newContent) => setNote({ ...note, content: newContent })}
+                                        placeholder='Contenido de Nota'
+                                    />
+                                    <TagsInput 
+                                        tags={note.tags || []}
+                                        onChange={(newTags) => setNote({ ...note, tags: newTags })}
+                                    />
+                                    <div className='card-actions justify-end'>
+                                        <button className='btn btn-primary' disabled={saving} onClick={handleSave}>
+                                            {saving ? 'Guardando...' : 'Guardar Cambios'}
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h1 className='card-title text-3xl mb-4'>{note.title}</h1>
+                                    <div className='mb-4'>
+                                        <FormattedText content={note.content} />
+                                    </div>
+                                    {note.tags && note.tags.length > 0 && (
+                                        <div className='mb-4'>
+                                            <p className='text-sm font-semibold mb-2'>Etiquetas:</p>
+                                            <div className='flex flex-wrap gap-2'>
+                                                {note.tags.map((tag) => (
+                                                    <span key={tag} className='badge badge-primary'>
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

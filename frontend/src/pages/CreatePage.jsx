@@ -4,10 +4,13 @@ import { ArrowLeftIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import api from '../lib/axios';
+import RichTextEditor from '../components/RichTextEditor';
+import TagsInput from '../components/TagsInput';
 
 const CreatePage = () => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -21,7 +24,8 @@ const CreatePage = () => {
         try {
             await api.post("/notes/", {
                 title,
-                content
+                content,
+                tags
             })
             toast.success("Nota creada con éxito.");
             navigate("/");
@@ -63,17 +67,15 @@ const CreatePage = () => {
                                         onChange={(e) => setTitle(e.target.value)}
                                     />
                                 </div>
-                                <div className='form-control mb-4'>
-                                    <label className="label">
-                                        <span className='label-text'>Contenido</span>
-                                    </label>
-                                    <textarea 
-                                        placeholder='Contenido de la Nota'
-                                        className='textarea textarea-bordered'
-                                        value={content}
-                                        onChange={(e) => setContent(e.target.value)}
-                                    />
-                                </div>
+                                <RichTextEditor 
+                                    value={content}
+                                    onChange={setContent}
+                                    placeholder='Contenido de la Nota'
+                                />
+                                <TagsInput 
+                                    tags={tags}
+                                    onChange={setTags}
+                                />
                                 <div className='card-actions justify-end'>
                                     <button type='submit' className='btn btn-primary' disabled ={loading}>
                                         {loading ? 'Creando...' : 'Crear Nota'}
